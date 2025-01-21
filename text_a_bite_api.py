@@ -2,8 +2,8 @@ import time
 import requests
 from gemini import get_nutrition
 
-url = "http://hackathons.masterschool.com:3030/team/getMessages/Text-a-Bite"
-headers = {"Content-Type": "application/json"}
+#url = "http://hackathons.masterschool.com:3030/team/getMessages/Text-a-Bite"
+#headers = {"Content-Type": "application/json"}
 
 # Dictionary to store the latest timestamp for each user
 latest_timestamps = {}
@@ -11,19 +11,19 @@ def send_subscribe_message(text,user_id):
     message ="""Welcome ! Text 'Text-a-Bite qty measure food' to get nutritional value."
     """
     url =  "http://hackathons.masterschool.com:3030/sms/send"
-    headers = {"Content-Type:":"application/json"}
+    headers = {"Content-Type": "application/json"}
     payload = {
         "phoneNumber": user_id,
         "message": message,
     }
     try:
-        response = requests.get(url,json=payload,headers=headers)
+        response = requests.post(url,json=payload,headers=headers)
         if response.status_code == 200:
             print("Message sent successfully!")
-            print("Response:", response.json())
+            #print("Response:", response.json())
         else:
             print(f"Failed to send message. Status code: {response.status_code}")
-            print("Response:", response.text)
+            #print("Response:", response.text)
         return response
     except Exception as e:
         print(f"An error occurred: {e}")
@@ -33,13 +33,14 @@ def send_an_sms(text,user_id):
     print("user_id::",user_id)
     print("text::",text)
     url = "http://hackathons.masterschool.com:3030/sms/send"
-    headers = {"Content-Type:": "application/json"}
+    headers = {"Content-Type": "application/json"}
     payload = {
         "phoneNumber": user_id,
         "message": text,
+        "sender": ""
     }
     try:
-        response = requests.get(url, json=payload, headers=headers)
+        response = requests.post(url, json=payload, headers=headers)
         if response.status_code == 200:
             print("Message sent successfully!")
             print("Response:", response.json())
@@ -54,7 +55,8 @@ def send_an_sms(text,user_id):
 
 def fetch_data():
     global latest_timestamps  # Access the global dictionary
-
+    url = "http://hackathons.masterschool.com:3030/team/getMessages/Text-a-Bite"
+    headers = {"Content-Type": "application/json"}
     try:
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
@@ -92,9 +94,13 @@ def fetch_data():
                         if "Text-a-Bite" in text:
                             split_text = text.split()
                             if len(split_text) > 1 :
-                               query = split_text[1]  # Use the second word as the query
+                               quantity = split_text[1]
+                               measure = split_text[2]
+                               food = split_text[3]
+
+                               # Use the second word as the query
                                #print(f"Fetching nutrition information for: {query}")
-                               nutrition_value =get_nutrition(query)
+                               nutrition_value = get_nutrition(quantity, measure, food)
                                send_an_sms(nutrition_value,user_id)
                             else:
                                print("")
