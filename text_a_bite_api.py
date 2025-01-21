@@ -7,6 +7,7 @@ from gemini import get_nutrition
 # url = "http://hackathons.masterschool.com:3030/team/getMessages/Text-a-Bite"
 # headers = {"Content-Type": "application/json"}
 
+
 # Dictionary to store the latest timestamp for each user
 latest_timestamps = {}
 
@@ -14,13 +15,15 @@ latest_timestamps = {}
 def send_subscribe_message(text, user_id):
     message = """Welcome ! Text 'Text-a-Bite qty measure food' to get nutritional value."
     """
-    url = "http://hackathons.masterschool.com:3030/sms/send"
+
+    url =  "http://hackathons.masterschool.com:3030/sms/send"
     headers = {"Content-Type": "application/json"}
     payload = {
         "phoneNumber": user_id,
         "message": message,
     }
     try:
+
         response = requests.post(url, json=payload, headers=headers)
         if response.status_code == 200:
             print("Message sent successfully!")
@@ -99,9 +102,9 @@ def fetch_data():
                         elif "Text-a-Bite" in text:  # "Text-a-Bite 1 cup rice"
                             nutrition_value = get_nutrition(text)
                             send_an_sms(nutrition_value, user_id)
-
                         else:
                             print("")
+                        
         else:
             print(f"Failed to fetch data. Status code: {response.status_code}")
     except Exception as e:

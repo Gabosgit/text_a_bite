@@ -12,6 +12,7 @@ def get_nutrition(text):
     model = genai.GenerativeModel("gemini-1.5-flash")
    # response = model.generate_content(f"calorieee vlue of {qty} {text} with percentage of content with out explaination")
     refined_query = (
+
         f"Provide the calorie value and percentage composition of {text}. "
         "Include only numerical values with the units. Present the result as: "
         "calories: [value] kcal, protein: [value] g, carbohydrates: [value] g, fats: [value] g."
