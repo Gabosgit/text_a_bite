@@ -1,37 +1,42 @@
 import time
+
 import requests
+
 from gemini import get_nutrition
 
-#url = "http://hackathons.masterschool.com:3030/team/getMessages/Text-a-Bite"
-#headers = {"Content-Type": "application/json"}
+# url = "http://hackathons.masterschool.com:3030/team/getMessages/Text-a-Bite"
+# headers = {"Content-Type": "application/json"}
 
 # Dictionary to store the latest timestamp for each user
 latest_timestamps = {}
-def send_subscribe_message(text,user_id):
-    message ="""Welcome ! Text 'Text-a-Bite qty measure food' to get nutritional value."
+
+
+def send_subscribe_message(text, user_id):
+    message = """Welcome ! Text 'Text-a-Bite qty measure food' to get nutritional value."
     """
-    url =  "http://hackathons.masterschool.com:3030/sms/send"
+    url = "http://hackathons.masterschool.com:3030/sms/send"
     headers = {"Content-Type": "application/json"}
     payload = {
         "phoneNumber": user_id,
         "message": message,
     }
     try:
-        response = requests.post(url,json=payload,headers=headers)
+        response = requests.post(url, json=payload, headers=headers)
         if response.status_code == 200:
             print("Message sent successfully!")
-            #print("Response:", response.json())
+            # print("Response:", response.json())
         else:
             print(f"Failed to send message. Status code: {response.status_code}")
-            #print("Response:", response.text)
+            # print("Response:", response.text)
         return response
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
 
-def send_an_sms(text,user_id):
-    print("user_id::",user_id)
-    print("text::",text)
+
+def send_an_sms(text, user_id):
+    print("user_id::", user_id)
+    print("text::", text)
     url = "http://hackathons.masterschool.com:3030/sms/send"
     headers = {"Content-Type": "application/json"}
     payload = {
@@ -84,35 +89,30 @@ def fetch_data():
             # Display the new messages
             for user_id, messages in new_messages.items():
                 if messages:
-                    #print(f"New messages for user {user_id}:")
+                    # print(f"New messages for user {user_id}:")
                     for message in messages:
                         text = message['text']
-                        #print(f"  {message['text']} received at {message['receivedAt']}")
+                        # print(f"  {message['text']} received at {message['receivedAt']}")
                         if "SUBSCRIBE" in text:
-                            send_subscribe_message(text,user_id)
+                            send_subscribe_message(text, user_id)
                         # Safely split the message text
-                        if "Text-a-Bite" in text:
-                            split_text = text.split()
-                            if len(split_text) > 1 :
-                               quantity = split_text[1]
-                               measure = split_text[2]
-                               food = split_text[3]
+                        elif "Text-a-Bite" in text:  # "Text-a-Bite 1 cup rice"
+                            nutrition_value = get_nutrition(text)
+                            send_an_sms(nutrition_value, user_id)
 
-                               # Use the second word as the query
-                               #print(f"Fetching nutrition information for: {query}")
-                               nutrition_value = get_nutrition(quantity, measure, food)
-                               send_an_sms(nutrition_value,user_id)
-                            else:
-                               print("")
+                        else:
+                            print("")
         else:
             print(f"Failed to fetch data. Status code: {response.status_code}")
     except Exception as e:
         print(f"Error during request: {e}")
 
+
 def main():
     while True:
         fetch_data()
         time.sleep(10)
+
 
 if __name__ == "__main__":
     main()
